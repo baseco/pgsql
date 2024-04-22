@@ -67,20 +67,20 @@ client_step(State, ServerResponse) ->
               ServerResponse/binary, ",",
               ClientMsg2/binary>>,
           Password = State#sasl_state.password,
-          SaltedPassword = scram:salted_password(
+          SaltedPassword = pgsql_scram:salted_password(
             sha256, Password, S, I),
           ClientKey =
-            scram:client_key(sha256, SaltedPassword),
-          StoredKey = scram:stored_key(sha256, ClientKey),
+            pgsql_scram:client_key(sha256, SaltedPassword),
+          StoredKey = pgsql_scram:stored_key(sha256, ClientKey),
           ClientSignature =
-            scram:client_signature(sha256, StoredKey, AuthMessage),
+            pgsql_scram:client_signature(sha256, StoredKey, AuthMessage),
           ClientProof =
             crypto:exor(ClientKey, ClientSignature),
           P = base64:encode(ClientProof),
           Msg = <<ClientMsg2/binary, ",p=", P/binary>>,
           ServerKey =
-            scram:server_key(sha256, SaltedPassword),
-          V = scram:server_signature(sha256, ServerKey, AuthMessage),
+            pgsql_scram:server_key(sha256, SaltedPassword),
+          V = pgsql_scram:server_signature(sha256, ServerKey, AuthMessage),
           {ok, Msg, State#sasl_state{nonce = R, verify = V}};
         _ ->
           {error, "Bad SASL server nonce"}
