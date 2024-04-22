@@ -70,10 +70,5 @@ hi_round(Algo, Password, UPrev, IterationCount) ->
   U = sha_mac(Algo, Password, UPrev),
   crypto:exor(U, hi_round(Algo, Password, U, IterationCount - 1)).
 
--ifdef(USE_OLD_CRYPTO_HMAC).
 sha_mac(Algo, Key, Data) ->
   crypto:hmac(Algo, Key, Data).
--else.
-sha_mac(Algo, Key, Data) ->
-  crypto:mac(hmac, Algo, Key, Data).
--endif.
